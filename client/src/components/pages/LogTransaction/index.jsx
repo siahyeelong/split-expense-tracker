@@ -46,12 +46,38 @@ function LogTransaction() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    async function handleSubmit(e) {
         e.preventDefault();
         if (validate()) {
-            alert('Form submitted successfully!');
             // Submit form logic here
-            console.log(formData);
+            try {
+                let response = "";
+
+                response = await fetch("http://localhost:5050/record", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                alert('Transaction logged successfully!');
+
+            } catch (error) {
+                console.error("something went wrong with updating a record: ", error);
+                alert("Something went wrong!");
+            } finally {
+                // Clear form
+                setFormData({
+                    recipients: [],
+                    category: '',
+                    price: '',
+                    description: '',
+                    payer: ''
+                });
+            }
         }
     };
 
@@ -67,7 +93,7 @@ function LogTransaction() {
                     <label className="form-label">Who is it for?</label><br />
                     {people.map((person) => (
                         <div key={person.identifier} className='form-check'>
-                            <input type='checkbox' name={person.identifier} className='form-check-input' onChange={handleCheckboxChange} />
+                            <input type='checkbox' name={person.identifier} className='form-check-input' checked={formData.recipients.includes(person.identifier)} onChange={handleCheckboxChange} />
                             <label className='form-check-label' htmlFor={person.identifier}>{person.displayName}</label>
                         </div>
                     ))}
@@ -77,7 +103,7 @@ function LogTransaction() {
                 {/* Dropdown input for category selection */}
                 < div className="mb-3" >
                     <label htmlFor="category" className="form-label">Category</label>
-                    <select name="category" id="category" className="form-select" onChange={handleChange}>
+                    <select name="category" id="category" className="form-select" value={formData.category} onChange={handleChange}>
                         <option value="">Select Category</option>
                         {categories.map((cat) => (
                             <option value={cat}>{cat}</option>
@@ -114,7 +140,7 @@ function LogTransaction() {
                 {/* Dropdown input for who paid */}
                 <div className="mb-3">
                     <label htmlFor="payer" className="form-label">Who Paid?</label>
-                    <select name="payer" id="payer" className="form-select" onChange={handleChange}>
+                    <select name="payer" id="payer" className="form-select" value={formData.payer} onChange={handleChange}>
                         <option value="">Select Payer</option>
                         {people.map((person) => (
                             <option value={person.identifier}>{person.displayName}</option>
