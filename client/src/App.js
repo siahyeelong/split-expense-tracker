@@ -7,7 +7,6 @@ import LogTransaction from "./components/pages/LogTransaction";
 import Dashboard from "./components/pages/Dashboard";
 import Transactions from "./components/pages/Transactions"
 import Settings from "./components/pages/Settings"
-import Test from "./components/Test";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -20,7 +19,6 @@ function App() {
           <Sidebar />
           <main className="content">
             <Topbar />
-            {/* <Test /> */}
             <Routes>
               <Route path='/' element={<LogTransaction />} />
               <Route path='/dashboard' element={<Dashboard />} />
