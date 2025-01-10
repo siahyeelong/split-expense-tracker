@@ -8,6 +8,7 @@ function Settings() {
             <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
                 <Header title={'Settings'} subtitle={'Configure app settings'} />
             </Box>
+            <div>(work in progress)</div>
         </Box>
     )
 }

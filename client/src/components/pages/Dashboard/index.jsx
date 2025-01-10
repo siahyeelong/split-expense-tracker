@@ -8,6 +8,7 @@ function Dashboard() {
             <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
                 <Header title={'Dashboard'} subtitle={'View analytics'} />
             </Box>
+            <div>(work in progress)</div>
         </Box>
     )
 }
