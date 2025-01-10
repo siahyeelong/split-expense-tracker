@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-import records from "./api/record.js";
+import records from "../routes/record.js";
+import colors from "colors";
 
 const PORT = process.env.PORT || 5050;
 const app = express();

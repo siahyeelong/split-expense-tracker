@@ -1,7 +1,6 @@
 import express from "express";
 import db from "../db/connection.js";
 import { ObjectId } from "mongodb"; // This help convert the id from string to ObjectId for the _id.
-import colors from "colors"; // for debugging
 
 // router is an instance of the express router.
 // We use it to define our routes.
