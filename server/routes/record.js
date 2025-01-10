@@ -18,6 +18,10 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/test", async (req, res) => {
+    res.send('hello from server!').status(200);
+});
+
 // This section will help you get a single record by id
 router.get("/:id", async (req, res) => {
     try {
