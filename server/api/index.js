@@ -11,8 +11,10 @@ app.use(express.json());
 app.use("/record", records);
 
 // start the Express server
-app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`.green.bold);
-});
+if (process.env.NODE_ENV === 'dev') {
+    app.listen(PORT, () => {
+        console.log(`Server listening on port ${PORT}`.green.bold);
+    });
+}
 
 export default app
