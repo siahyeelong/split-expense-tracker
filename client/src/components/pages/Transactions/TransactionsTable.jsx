@@ -1,9 +1,7 @@
 import { React, useState, useEffect } from 'react'
 import { TablePagination, useTheme } from '@mui/material';
 import { tokens } from '../../../theme'
-
-import { DataGrid } from '@mui/x-data-grid';
-import { Box, Button, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, FormControlLabel } from '@mui/material';
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from '@mui/material';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ToCSVButton from './ToCSVButton';
@@ -28,8 +26,9 @@ function TransactionsTable() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // Fetch data from the API using fetch
-        fetch('http://localhost:5050/record/', { method: "GET" })
+        const backendURL = process.env.REACT_APP_BACKEND_URL;
+        console.log(backendURL)
+        fetch(`${backendURL}/record/`, { method: "GET" })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -43,7 +42,6 @@ function TransactionsTable() {
                 setError('Failed to fetch transactions. Please try again later.');
                 console.error('Error fetching data:', error);
             });
-        console.log(transactions);
     }, []);
 
     const columns = [

@@ -1,7 +1,6 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 import dotenv from 'dotenv';
 dotenv.config({ path: './server/.env' });
-import colors from "colors";
 
 const uri = process.env.ATLAS_URI || "";
 const client = new MongoClient(uri, {
