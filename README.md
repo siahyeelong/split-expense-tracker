@@ -23,3 +23,4 @@ This web app is my first attempt at full-stack development using the MERN stack.
 1. toggle currency button in transactions page
 1. start writing who-owes-who logic
 1. disable export button when error 
+1. edit headers and logo
