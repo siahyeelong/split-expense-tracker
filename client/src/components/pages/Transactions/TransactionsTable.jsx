@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, Button, Typography, useTheme } from '@mui/material';
 import { tokens } from '../../../theme';
 import { DataGrid } from '@mui/x-data-grid';
 import ToCSVButton from './ToCSVButton';
 import { Person, People } from '../../settings/People';
+import RecipientsCell from './RecipientsCell';
 
 function TransactionsTable() {
     const theme = useTheme();
@@ -63,23 +64,7 @@ function TransactionsTable() {
         {
             field: 'recipients', headerName: 'Recipients', flex: 20, sortable: true, filterable: true,
             renderCell: (params) => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {params.value && params.value.map((recipient) => (
-                        <Box
-                            key={recipient}
-                            sx={{
-                                padding: '2px 8px',
-                                borderRadius: '12px',
-                                backgroundColor: Person.findFavColour(recipient, People) || '#CCCCCC',
-                                color: '#000',
-                                fontSize: '0.875rem',
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            {Person.findDisplayName(recipient, People)}
-                        </Box>
-                    ))}
-                </Box>
+                < RecipientsCell recipients={params.value || []} />
             )
         },
         { field: 'description', headerName: 'Description', flex: 15, sortable: true, filterable: true },
