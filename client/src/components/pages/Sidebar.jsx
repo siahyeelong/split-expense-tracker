@@ -31,7 +31,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 function Sidebar() {
     const theme = useTheme();
     const colours = tokens(theme.palette.mode);
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
     const [selected, setSelected] = useState('logtransaction');
 
     return (

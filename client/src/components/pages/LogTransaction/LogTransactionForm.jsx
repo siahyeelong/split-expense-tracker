@@ -1,33 +1,94 @@
 import { React, useState } from 'react'
-import { People as people } from '../../settings/People';
+import { People, Person } from '../../settings/People';
 import { Categories as categories } from '../../settings/Categories';
+import Chip from '@mui/material/Chip';
+import { useTheme, ToggleButton, ToggleButtonGroup, InputBase } from '@mui/material';
+import { tokens } from '../../../theme'
+import { ExchangeRates } from '../../settings/ExchangeRates';
 
 function LogTransactionForm() {
-    const [formData, setFormData] = useState({
+    const theme = useTheme();
+    const colours = tokens(theme.palette.mode);
+
+    const formResetState = {
         recipients: [],
         category: '',
         price: '',
+        currency: 'SGD',
         description: '',
         payer: ''
-    });
+    }
+
+    const [formData, setFormData] = useState(formResetState);
 
     const [errors, setErrors] = useState({});
 
-    // Handle checkbox change: append / remove recipients from recipients array
-    const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            recipients: checked
-                ? [...prev.recipients, name] // append a recipient 
-                : prev.recipients.filter((recipient) => recipient !== name) // remove the recipient from the list
-        }));
+    // Handle chip select change: append / remove recipients from recipients array
+    const handleChipSelection = (identifier) => {
+        setFormData((prev) => {
+            const updatedRecipients = prev.recipients.includes(identifier)
+                ? prev.recipients.filter(id => id !== identifier)
+                : [...prev.recipients, identifier];
+            return { ...prev, recipients: updatedRecipients };
+        });
+    };
+
+    // Handle currency change
+    const handleCurrencyChange = (event, newCurrency) => {
+        if (newCurrency) {
+            setFormData((prev) => {
+                return { ...prev, currency: newCurrency };
+            });
+        }
+    };
+
+    const handlePriceChange = (e) => {
+        const rawValue = e.target.value.replace(/[^0-9.]/g, ''); // Allow only digits and a period
+        if (!/^(\d+(\.\d{0,2})?)?$/.test(rawValue)) return; // Prevents invalid decimal formats
+
+        const newCurrency = rawValue > ExchangeRates.getRate('IDR') ? 'IDR' : 'SGD';
+        setFormData((prev) => ({ ...prev, price: rawValue, currency: newCurrency }));
+
+        // Delay or blur event to format the displayed value
+        e.target.value = formatNumberWithCommas(rawValue); // Keep raw input for better typing experience
+    };
+
+    const handlePriceBlur = (e) => {
+        const numericValue = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
+        e.target.value = !isNaN(numericValue)
+            ? numericValue.toLocaleString('en-SG', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2,
+            })
+            : '';
+    };
+
+    const formatNumberWithCommas = (value) => { // def can make this optimal but screw this shit man
+        // Remove any non-numeric characters except for the decimal point
+        const numberPart = value.replace(/[^0-9.]/g, '');
+
+        // Check if the number has a period (decimal point) in it
+        const hasDecimalPoint = numberPart.includes('.');
+
+        // Separate the integer and decimal parts
+        const [integerPart, decimalPart] = numberPart.split('.');
+
+        // Format the integer part with commas
+        const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        // If there's a decimal part, ensure it's properly formatted with up to 2 decimal places
+        const formattedDecimalPart = decimalPart
+            ? '.' + decimalPart.slice(0, 2)  // Limit decimal to 2 places
+            : '';
+
+        // Return the formatted number with or without decimal
+        return numberPart.endsWith('.') ? formattedIntegerPart + '.' : formattedIntegerPart + formattedDecimalPart;
     };
 
     // Handle all other changes by updating the corresponding values
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        const { id, value } = e.target;
+        setFormData({ ...formData, [id]: value });
     };
 
     const validate = () => {
@@ -66,35 +127,43 @@ function LogTransactionForm() {
                 alert("Something went wrong!");
             } finally {
                 // Clear form
-                setFormData({
-                    recipients: [],
-                    category: '',
-                    price: '',
-                    description: '',
-                    payer: ''
-                });
+                setFormData(formResetState);
             }
         }
     };
 
     return (
         <form onSubmit={handleSubmit} className="container mt-4 ">
-            {/* Checkbox input for who paid */}
+            {/* Chip select input for who paid */}
             <div className="mb-3">
                 <label className="form-label">Who is it for?</label><br />
-                {people.map((person) => (
-                    <div key={person.identifier} className='form-check'>
-                        <input type='checkbox' name={person.identifier} className='form-check-input' checked={formData.recipients.includes(person.identifier)} onChange={handleCheckboxChange} />
-                        <label className='form-check-label' htmlFor={person.identifier}>{person.displayName}</label>
-                    </div>
-                ))}
+                <div className="chip-group">
+                    {People.map((person) => {
+                        const selected = formData.recipients.includes(person.identifier);
+                        return (
+                            <Chip
+                                key={person.identifier}
+                                label={person.displayName}
+                                sx={{
+                                    color: '#000',
+                                    backgroundColor: selected ? Person.findFavColour(person.identifier, People) : '#e0e0e0',
+                                    margin: '0.25%',
+                                }}
+                                clickable
+                                onClick={() => handleChipSelection(person.identifier)}
+                                onDelete={selected ? () => handleChipSelection(person.identifier) : undefined}
+                                className={`chip ${selected ? 'chip-selected' : ''}`}
+                            />
+                        );
+                    })}
+                </div>
 
                 {errors.recipients && <div className="text-danger">{errors.recipients}</div>}
             </div>
             {/* Dropdown input for category selection */}
             < div className="mb-3" >
                 <label htmlFor="category" className="form-label">Category</label>
-                <select name="category" id="category" className="form-select" value={formData.category} onChange={handleChange}>
+                <select id="category" className="form-select" value={formData.category} onChange={handleChange}>
                     <option value="">Select Category</option>
                     {categories.map((cat) => (
                         <option value={cat}>{cat}</option>
@@ -104,16 +173,43 @@ function LogTransactionForm() {
             </div>
             {/* Text input for price input */}
             <div className="mb-3">
-                <label htmlFor="price" className="form-label">Price</label>
-                <input
-                    type="text"
-                    name="price"
-                    id="price"
-                    className="form-control"
-                    value={formData.price}
-                    onChange={handleChange}
-                />
-                {errors.price && <div className="text-danger">{errors.price}</div>}
+                <label className="form-label">Price</label>
+                <div style={{ display: 'flex', alignItems: 'center', backgroundColor: 'white', borderRadius: '8px' }}>
+                    <ToggleButtonGroup
+                        value={formData.currency}
+                        exclusive
+                        id='currency'
+                        onChange={handleCurrencyChange}
+                        aria-label="Currency"
+                        sx={{
+                            '& .MuiToggleButton-root': {
+                                backgroundColor: '#e0e0e0',
+                                color: 'black',
+                                '&.Mui-selected': {
+                                    backgroundColor: colours.greenAccent[600], // Darker green for selected
+                                    color: colours.grey[100],
+                                },
+                            },
+                        }}
+                    >
+                        <ToggleButton value="SGD" aria-label="SGD">
+                            SGD
+                        </ToggleButton>
+                        <ToggleButton value="IDR" aria-label="IDR">
+                            IDR
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                    <InputBase
+                        required
+                        id='price'
+                        type='text'
+                        onChange={handlePriceChange}
+                        onBlur={handlePriceBlur}
+                        placeholder="Enter price"
+                        variant="outlined"
+                        style={{ flexGrow: 1, marginLeft: '8px', color: 'black' }}
+                    />
+                </div>
             </div>
             {/* Text input for description input */}
             <div className="mb-3">
@@ -133,7 +229,7 @@ function LogTransactionForm() {
                 <label htmlFor="payer" className="form-label">Who Paid?</label>
                 <select name="payer" id="payer" className="form-select" value={formData.payer} onChange={handleChange}>
                     <option value="">Select Payer</option>
-                    {people.map((person) => (
+                    {People.map((person) => (
                         <option value={person.identifier}>{person.displayName}</option>
                     ))}
                 </select>

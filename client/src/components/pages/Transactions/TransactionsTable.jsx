@@ -84,15 +84,17 @@ function TransactionsTable() {
             {error ? (
                 <Typography color="error" variant="body1">{error}</Typography>
             ) : (
-                <Box sx={{ height: 550, width: '100%' }}>
-                    <DataGrid
-                        rows={transactions.map((transaction, index) => ({ id: index + 1, ...transaction }))}
-                        columns={columns}
-                        pageSize={pageSize}
-                        rowsPerPageOptions={[10, 20, 50]}
-                        onPageSizeChange={handlePageSizeChange}
-                        sortingOrder={['asc', 'desc']}
-                    />
+                <Box sx={{ height: 550, width: '100%', overflow: 'auto' }}>
+                    <Box sx={{ minWidth: 1300, height: 550 }}>
+                        <DataGrid
+                            rows={transactions.map((transaction, index) => ({ id: index + 1, ...transaction }))}
+                            columns={columns}
+                            pageSize={pageSize}
+                            rowsPerPageOptions={[10, 20, 50]}
+                            onPageSizeChange={handlePageSizeChange}
+                            sortingOrder={['asc', 'desc']}
+                        />
+                    </Box>
                 </Box>
             )}
         </Box>
