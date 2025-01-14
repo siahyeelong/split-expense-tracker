@@ -47,28 +47,27 @@ function LogTransactionForm() {
         if (!/^(\d+(\.\d{0,2})?)?$/.test(rawValue)) return; // Prevents invalid decimal formats
 
         const newCurrency = rawValue > ExchangeRates.getRate('IDR') ? 'IDR' : 'SGD';
-        setFormData((prev) => ({ ...prev, price: rawValue, currency: newCurrency }));
 
         // Delay or blur event to format the displayed value
-        e.target.value = formatNumberWithCommas(rawValue); // Keep raw input for better typing experience
+        const formattedValue = formatNumberWithCommas(rawValue); // Keep raw input for better typing experience
+
+        setFormData((prev) => ({ ...prev, price: formattedValue, currency: newCurrency }));
     };
 
     const handlePriceBlur = (e) => {
         const numericValue = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
-        e.target.value = !isNaN(numericValue)
+        const formattedPrice = !isNaN(numericValue)
             ? numericValue.toLocaleString('en-SG', {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 2,
             })
             : '';
+        setFormData((prev) => ({ ...prev, price: formattedPrice }));
     };
 
     const formatNumberWithCommas = (value) => { // def can make this optimal but screw this shit man
         // Remove any non-numeric characters except for the decimal point
         const numberPart = value.replace(/[^0-9.]/g, '');
-
-        // Check if the number has a period (decimal point) in it
-        const hasDecimalPoint = numberPart.includes('.');
 
         // Separate the integer and decimal parts
         const [integerPart, decimalPart] = numberPart.split('.');
@@ -95,9 +94,10 @@ function LogTransactionForm() {
         const newErrors = {};
         if (!formData.recipients.length) newErrors.recipients = "Please select at least one recipient.";
         if (!formData.category) newErrors.category = "Please select a category.";
-        if (!formData.price || isNaN(formData.price)) newErrors.price = "Price must be a valid number.";
+        if (!formData.price || isNaN(formData.price.replace(/[^0-9.]/g, ''))) newErrors.price = "Price must be a valid number.";
         if (!formData.description) newErrors.description = "Description is required.";
         if (!formData.payer) newErrors.payer = "Please select who paid.";
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -107,6 +107,9 @@ function LogTransactionForm() {
         if (validate()) {
             // Submit form logic here
             try {
+                // Adjust price back to number format
+                formData.price = formData.price.replace(/[^0-9.]/g, '')
+
                 let response = "";
                 const backendURL = process.env.REACT_APP_BACKEND_URL;
 
@@ -162,11 +165,11 @@ function LogTransactionForm() {
             </div>
             {/* Dropdown input for category selection */}
             < div className="mb-3" >
-                <label htmlFor="category" className="form-label">Category</label>
+                <label htmlFor="category" key="categoryselection" className="form-label">Category</label>
                 <select id="category" className="form-select" value={formData.category} onChange={handleChange}>
-                    <option value="">Select Category</option>
+                    <option key="default" value="">Select Category</option>
                     {categories.map((cat) => (
-                        <option value={cat}>{cat}</option>
+                        <option value={cat} key={cat}>{cat}</option>
                     ))}
                 </select>
                 {errors.category && <div className="text-danger">{errors.category}</div>}
@@ -192,10 +195,10 @@ function LogTransactionForm() {
                             },
                         }}
                     >
-                        <ToggleButton value="SGD" aria-label="SGD">
+                        <ToggleButton value="SGD" aria-label="SGD" key="SGD">
                             SGD
                         </ToggleButton>
-                        <ToggleButton value="IDR" aria-label="IDR">
+                        <ToggleButton value="IDR" aria-label="IDR" key="IDR">
                             IDR
                         </ToggleButton>
                     </ToggleButtonGroup>
@@ -203,6 +206,7 @@ function LogTransactionForm() {
                         required
                         id='price'
                         type='text'
+                        value={formData.price}
                         onChange={handlePriceChange}
                         onBlur={handlePriceBlur}
                         placeholder="Enter price"
@@ -210,6 +214,7 @@ function LogTransactionForm() {
                         style={{ flexGrow: 1, marginLeft: '8px', color: 'black' }}
                     />
                 </div>
+                {errors.price && <div className="text-danger">{errors.price}</div>}
             </div>
             {/* Text input for description input */}
             <div className="mb-3">
@@ -228,9 +233,9 @@ function LogTransactionForm() {
             <div className="mb-3">
                 <label htmlFor="payer" className="form-label">Who Paid?</label>
                 <select name="payer" id="payer" className="form-select" value={formData.payer} onChange={handleChange}>
-                    <option value="">Select Payer</option>
+                    <option key="default" value="">Select Payer</option>
                     {People.map((person) => (
-                        <option value={person.identifier}>{person.displayName}</option>
+                        <option value={person.identifier} key={person.identifier}>{person.displayName}</option>
                     ))}
                 </select>
                 {errors.payer && <div className="text-danger">{errors.payer}</div>}

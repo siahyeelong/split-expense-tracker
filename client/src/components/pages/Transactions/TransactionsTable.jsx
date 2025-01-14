@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Typography, useTheme } from '@mui/material';
+import { Box, Typography, useTheme, Stack } from '@mui/material';
 import { tokens } from '../../../theme';
 import { DataGrid } from '@mui/x-data-grid';
 import ToCSVButton from './ToCSVButton';
 import { Person, People } from '../../settings/People';
 import RecipientsCell from './RecipientsCell';
+import CurrencySwitch from './CurrencySwitch';
 
 function TransactionsTable() {
     const theme = useTheme();
@@ -12,6 +13,7 @@ function TransactionsTable() {
 
     const [transactions, setTransactions] = useState([]);
     const [pageSize, setPageSize] = useState(10);
+    const [showSGD, setShowSGD] = useState(false)
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -50,11 +52,11 @@ function TransactionsTable() {
             }
         },
         {
-            field: 'price', headerName: 'Price', flex: 10, sortable: true, filterable: true,
+            field: (showSGD ? 'SGD' : 'price'), headerName: 'Price', flex: 10, sortable: true, filterable: true,
             valueGetter: (params) => parseFloat(params.value),
             valueFormatter: (params) => {
                 return parseFloat(params.value).toLocaleString('en-SG', {
-                    style: 'currency', currency: 'SGD',
+                    style: 'currency', currency: showSGD ? 'SGD' : (transactions[params.id - 1].currency || 'SGD'),
                     minimumFractionDigits: 0,  // Show no decimal places if not needed
                     maximumFractionDigits: 2
                 });
@@ -80,7 +82,11 @@ function TransactionsTable() {
 
     return (
         <Box sx={{ padding: 4 }}>
-            <ToCSVButton data={transactions} colours={colours} />
+            <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+                <ToCSVButton data={transactions} colours={colours} />
+                <CurrencySwitch onToggle={setShowSGD} />
+                {console.log('show? : ', showSGD)}
+            </Stack>
             {error ? (
                 <Typography color="error" variant="body1">{error}</Typography>
             ) : (
