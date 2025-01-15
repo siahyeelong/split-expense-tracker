@@ -6,6 +6,7 @@ import ToCSVButton from './ToCSVButton';
 import { Person, People } from '../../settings/People';
 import RecipientsCell from './RecipientsCell';
 import CurrencySwitch from './CurrencySwitch';
+import PerTransactionDialog from './PerTransactionDialog';
 
 function TransactionsTable() {
     const theme = useTheme();
@@ -13,7 +14,9 @@ function TransactionsTable() {
 
     const [transactions, setTransactions] = useState([]);
     const [pageSize, setPageSize] = useState(10);
-    const [showSGD, setShowSGD] = useState(false)
+    const [showSGD, setShowSGD] = useState(false);
+    const [showTransactionDialog, setShowTransactionDialog] = useState(false);
+    const [selectedTransaction, setSelectedTransaction] = useState([]);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -99,8 +102,10 @@ function TransactionsTable() {
                             rowsPerPageOptions={[10, 20, 50]}
                             onPageSizeChange={handlePageSizeChange}
                             sortingOrder={['asc', 'desc']}
+                            onRowClick={(params) => { setShowTransactionDialog(true); setSelectedTransaction(params.row) }}
                         />
                     </Box>
+                    <PerTransactionDialog showDialog={showTransactionDialog} transaction={selectedTransaction} onClose={() => setShowTransactionDialog(false)} />
                 </Box>
             )}
         </Box>

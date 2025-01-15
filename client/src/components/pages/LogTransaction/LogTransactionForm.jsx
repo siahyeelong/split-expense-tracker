@@ -1,6 +1,6 @@
 import { React, useState } from 'react'
 import { People, Person } from '../../settings/People';
-import { Categories as categories } from '../../settings/Categories';
+import { Categories } from '../../settings/Categories';
 import Chip from '@mui/material/Chip';
 import { useTheme, ToggleButton, ToggleButtonGroup, InputBase } from '@mui/material';
 import { tokens } from '../../../theme'
@@ -18,6 +18,7 @@ function LogTransactionForm() {
         description: '',
         payer: ''
     }
+    const categories = Categories.category
 
     const [formData, setFormData] = useState(formResetState);
 
@@ -168,7 +169,7 @@ function LogTransactionForm() {
                 <label htmlFor="category" key="categoryselection" className="form-label">Category</label>
                 <select id="category" className="form-select" value={formData.category} onChange={handleChange}>
                     <option key="default" value="">Select Category</option>
-                    {categories.map((cat) => (
+                    {Object.keys(categories).map((cat) => (
                         <option value={cat} key={cat}>{cat}</option>
                     ))}
                 </select>

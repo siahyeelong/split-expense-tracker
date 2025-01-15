@@ -21,7 +21,7 @@ const MoreRecipientDialog = ({ open, onClose, recipients }) => (
             </Box>
         </DialogContent>
         <DialogActions>
-            <Button onClick={onClose}>Close</Button>
+            <Button onClick={onClose} variant='contained' color='secondary'>Close</Button>
         </DialogActions>
     </Dialog>
 );
