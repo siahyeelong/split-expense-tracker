@@ -1,34 +1,30 @@
 import { People } from "./People.js"
 import { transactions } from "./test_data.js";
 
-function print2DArray(data) {
-    const keys = Object.keys(data); // Get all keys (person1, person2, etc.)
-
-    // Print header row
-    console.log("     " + keys.map(key => key.padEnd(8)).join(" "));
-
-    // Print each row
-    keys.forEach(rowKey => {
-        const row = data[rowKey];
-        const rowData = keys.map(colKey => String(row[colKey] || 0).padEnd(8)).join(" "); // Use 0 if key doesn't exist
-        console.log(rowKey.padEnd(10) + rowData);
-    });
-}
-
-function generate_matrix(peopleData, transactions) {
-    // This function initialises the 2D matrix with respect to all participants in this group
-    const people = peopleData.getAllPeople()
-    const debt_matrix = [] // a 2D array containing the amount. debt_matrix[x][y] = a --> x owes y $a
-
-    // initialise debt matrix
+/**
+ * This function initialises the 2D matrix with respect to all participants in this group
+ * 
+ * @returns {Object} a 2D array object based on all users with all values initialised to 0
+ */
+function initialise_2D_matrix() {
+    const people = People.getAllPeople()
+    const ret_matrix = []
     people.forEach(px => {
-        debt_matrix[px.personKey] = []
+        ret_matrix[px.personKey] = []
         people.forEach(py => {
-            debt_matrix[px.personKey][py.personKey] = 0
+            ret_matrix[px.personKey][py.personKey] = 0
         })
     })
-    const debt_matrix_reduced = structuredClone(debt_matrix)
-    const debt_matrix_simplified = structuredClone(debt_matrix)
+    return ret_matrix
+}
+/**
+ * This function generates the basic debt matrix based on the transactions.
+ * 
+ * @param {Object} transactions The transactions data returned from MongoDB
+ * @returns {Object} The 2D array object debt_matrix containing the amount that each person owes
+*/
+function generate_raw_matrix(transactions) {
+    const debt_matrix = initialise_2D_matrix() // a 2D array containing the amount. debt_matrix[x][y] = a --> x owes y $a
 
     // for each recipient, log how much they owe the payer according to an even-split
     transactions.forEach(transaction => {
@@ -42,7 +38,17 @@ function generate_matrix(peopleData, transactions) {
         })
     })
 
-    // generate the reduced debt matrix 'debt_matrix_reduced'. if A owes B $5, but B owes A $2, then A only owes B $3
+    return debt_matrix
+}
+/**
+ * This function generates the reduced debt matrix 'debt_matrix_reduced'
+ * If A owes B $5, but B owes A $2, then A only owes B $3
+ * 
+ * @param {Object} debt_matrix The debt matrix to reduce
+ * @returns {Object} debt_matrix_reduced, a reduced version of the debt_matrix
+ */
+function reduce_debts(debt_matrix) {
+    const debt_matrix_reduced = initialise_2D_matrix()
     Object.keys(debt_matrix).forEach(px => {
         Object.keys(debt_matrix[px]).forEach(py => {
             if (px !== py) {
@@ -53,35 +59,45 @@ function generate_matrix(peopleData, transactions) {
             }
         })
     })
+    return debt_matrix_reduced
+}
 
-    // generate the simplified debt matrix 'debt_matrix_simplified'. 
-    // for a group where there will be owers and there will be owed, generate the minimum transactions such that everybody's 
-    // transaction is accounted for. owers will pay what they owe, and the owed will receive what they are owed.
-    const total_give = [] // total that each person owes 
-    const total_receive = [] // total that each person is expecting to receive
+// #3 GENERATE SIMPLIFIED DEBT MATRIX
+
+/**
+ * This function generates the simplified debt matrix 'debt_matrix_simplified'. 
+ * For a group where there will be owers and there will be owed, generate the minimum transactions such that everybody's 
+ * transaction is accounted for. owers will pay what they owe, and the owed will receive what they are owed.
+ * 
+ * @param {PeopleClass} peopleData The People instance of PeopleClass, containing data about all users involved in this transaction
+ * @param {Object} debt_matrix The debt matrix to simplify. It can take in the reduced matrix too.
+ * @returns {Object} debt_matrix_simplified, the simplified version of the debt_matrix
+ */
+function simplify_debts(peopleData, debt_matrix) {
+    const people = peopleData.getAllPeople()
+    const debt_matrix_simplified = initialise_2D_matrix()
+
+
+    // const total_give = [] // total that each person owes 
+    // const total_receive = [] // total that each person is expecting to receive
     const equivalent_to_give = [] // combines total_give and total_receive. +ve value indicates overall this person owes some money. -ve value indicates overall this person will be receiving money. 0 means they can be excluded from the simplified transactions, since they neither owe nor are owed money.
-
+    // initialise dictionary to 0 
     people.forEach(person => {
-        total_give[person.personKey] = 0
-        total_receive[person.personKey] = 0
+        equivalent_to_give[person.personKey] = 0
     })
 
-
+    // based on the reduced debt matrix, summarise how much a person is expected to give and receive
     Object.keys(debt_matrix).forEach(px => {
         Object.keys(debt_matrix[px]).forEach(py => {
-            total_give[px] += debt_matrix_reduced[px][py] // sum all rows
-            total_receive[py] += debt_matrix_reduced[px][py] // sum all columns
+            equivalent_to_give[px] += debt_matrix[px][py] // sum all rows: add on the amount owed to others
+            equivalent_to_give[py] -= debt_matrix[px][py] // sum all columns: subtract amount others owe you
         })
-    })
-
-    people.forEach(person => {
-        equivalent_to_give[person.personKey] = total_give[person.personKey] - total_receive[person.personKey]
     })
     // notice that if you sum up the values in equivalent_to_give, it is always 0. 
 
+    // create 2 groups: givers and receivers. givers are those who net-owe others, while receivers are those who are net-owed.
     const givers = []
     const receivers = []
-
     Object.keys(equivalent_to_give).forEach(person => {
         const amount = equivalent_to_give[person]
 
@@ -89,9 +105,6 @@ function generate_matrix(peopleData, transactions) {
         else if (amount > 0) givers[person] = amount
         // for those who have to give 0, they will be excluded since they don't matter
     })
-
-    console.log(givers)
-    console.log(receivers)
 
     // function that returns the key with the greatest value in a given dictionary
     function max(dict) {
@@ -106,8 +119,15 @@ function generate_matrix(peopleData, transactions) {
         return highestKey
     }
 
+    do { // minimise transactions to cover owers and the owed
 
-    do {
+        // the logic is as such (assuming giver = ower; receiver = owed)
+        // - the biggest giver will give the biggest receiver first
+        // - scenario 1: giver has not given away all their money yet
+        // - scenario 2: receiver has not received all their money yet
+        // - in either case, update their amount correspondingly
+        // - loop again until everyone has been satisfied
+        // (not sure if this is optimal, but from my few tests, it seems like it. is the alg efficient? hell no LOL)
 
         let max_giver = max(givers)
         let max_receiver = max(receivers)
@@ -127,8 +147,35 @@ function generate_matrix(peopleData, transactions) {
         debt_matrix_simplified[max_giver][max_receiver] += amt_given // update matrix to show giver gives receiver amt_given
 
     } while (max(givers) && max(receivers));
-    console.warn(givers, "\n", receivers)
 
+    return debt_matrix_simplified
+}
+
+/**
+ * [Debugging] This function prints the debt matrices on the console
+ * 
+ * @param {Object} data 
+ */
+function print2DArray(data) {
+    const keys = Object.keys(data); // Get all keys (person1, person2, etc.)
+
+    // Print header row
+    console.log("     " + keys.map(key => key.padEnd(8)).join(" "));
+
+    // Print each row
+    keys.forEach(rowKey => {
+        const row = data[rowKey];
+        const rowData = keys.map(colKey => String(row[colKey] || 0).padEnd(8)).join(" "); // Use 0 if key doesn't exist
+        console.log(rowKey.padEnd(10) + rowData);
+    });
+}
+/**
+ * [Debugging] This function is used to verify the functionality of the functions written
+ */
+function runTest() {
+    const debt_matrix = generate_raw_matrix(transactions)
+    const debt_matrix_reduced = reduce_debts(debt_matrix)
+    const debt_matrix_simplified = simplify_debts(People, debt_matrix)
 
     console.log("\nOG\n")
     print2DArray(debt_matrix)
@@ -138,6 +185,4 @@ function generate_matrix(peopleData, transactions) {
     print2DArray(debt_matrix_simplified)
 }
 
-
-
-generate_matrix(People, transactions)
+runTest()
