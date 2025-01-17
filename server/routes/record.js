@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
             category: req.body.category,
             price: req.body.price,
             currency: req.body.currency,
-            SGD: (req.body.currency === 'SGD') ? toString(req.body.price) : (req.body.price / 11877.96).toFixed(2), // TODO: make a function to get the live rates or the average rates or something
+            SGD: (req.body.currency === 'SGD') ? (req.body.price) : (req.body.price / 11877.96).toFixed(2), // TODO: make a function to get the live rates or the average rates or something
             description: req.body.description,
             payer: req.body.payer,
             timestamp: new Date(),
