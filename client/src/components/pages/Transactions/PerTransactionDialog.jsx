@@ -22,13 +22,14 @@ function TransactionCard(transaction) {
                     </Box>
                     <Box p={'10px'}>
                         {/* Display price large */}
-                        <Typography fontSize={'large'}>{price}</Typography>
+                        <Typography variant='h1'>{price}</Typography>
                     </Box>
                 </Box>
                 <Box textAlign={'center'} p={'10px'}>
-                    <Typography variant="body2" sx={{ display: 'block' }}>
+                    <Typography variant="h6" sx={{ display: 'block' }} p={'5px'}>
                         Paid by:
                     </Typography>
+                    {/* display payer */}
                     <Chip
                         key={trans.payer}
                         label={Person.findDisplayName(trans.payer, People)}
@@ -38,28 +39,28 @@ function TransactionCard(transaction) {
                             fontWeight: 'bold',
                         }} />
                 </Box>
-            </Box>
+            </Box >
 
             {/* Display Category in text */}
-            <Box display={'flex'} alignContent={'center'}>
+            < Box display={'flex'} alignContent={'center'} >
                 <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
                     <Typography fontWeight={'bold'}>Category: </Typography>
                 </Box>
                 <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
                     <Typography>{trans.category}</Typography>
                 </Box>
-            </Box>
+            </Box >
             {/* Display Description */}
-            <Box display={'flex'} alignContent={'center'}>
+            < Box display={'flex'} alignContent={'center'} >
                 <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
                     <Typography fontWeight={'bold'}>Description: </Typography>
                 </Box>
                 <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
                     <Typography>{trans.description}</Typography>
                 </Box>
-            </Box>
+            </Box >
             {/* Display amount in SGD if not in original currency */}
-            <Box display={'flex'} alignContent={'center'} visibility={trans.currency === 'SGD' ? 'hidden' : 'visible'}>
+            < Box display={'flex'} alignContent={'center'} visibility={trans.currency === 'SGD' ? 'hidden' : 'visible'} >
                 <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
                     <Typography fontWeight={'bold'}>Price (SGD): </Typography>
                 </Box>
@@ -72,27 +73,18 @@ function TransactionCard(transaction) {
                         })}
                     </Typography>
                 </Box>
-            </Box>
+            </Box >
             {/* Display exchange rate */}
-            <Box display={'flex'} alignContent={'center'} visibility={trans.currency === 'SGD' ? 'hidden' : 'visible'}>
+            < Box display={'flex'} alignContent={'center'} visibility={trans.currency === 'SGD' ? 'hidden' : 'visible'} >
                 <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
                     <Typography fontWeight={'bold'}>Exchange rate: </Typography>
                 </Box>
                 <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
                     <Typography>{ExchangeRates.getRate('IDR')}</Typography>
                 </Box>
-            </Box>
-            {/* Display Payer */}
-            <Box display={'flex'} alignContent={'center'}>
-                <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
-                    <Typography fontWeight={'bold'}>Payer: </Typography>
-                </Box>
-                <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
-                    <Typography>{trans.payer}</Typography>
-                </Box>
-            </Box>
+            </Box >
             {/* Display recipients */}
-            <Box display={'flex'} alignContent={'center'}>
+            < Box display={'flex'} alignContent={'center'} width={400}>
                 <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
                     <Typography fontWeight={'bold'}>Recipients: </Typography>
                 </Box>
@@ -109,7 +101,7 @@ function TransactionCard(transaction) {
                         />
                     ))}
                 </Box>
-            </Box>
+            </Box >
 
             {/* Display timestamp as a grey footer */}
         </>
@@ -136,7 +128,7 @@ function PerTransactionDialog({ showDialog, transaction, onClose }) {
     }
 
     return (
-        <Dialog open={showDialog} onClose={onClose} fullWidth={true} maxWidth={'xs'} >
+        <Dialog open={showDialog} onClose={onClose} fullWidth={false} maxWidth={false}>
             <DialogContent><TransactionCard transaction={transaction} /></DialogContent>
             <DialogActions>
                 <Button variant='outlined' color='error' onClick={() => { deleteTransaction(transaction).then(onClose); }}>

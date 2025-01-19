@@ -104,6 +104,21 @@ function TransactionsTable() {
                             onPageSizeChange={handlePageSizeChange}
                             sortingOrder={['asc', 'desc']}
                             onRowClick={(params) => { setShowTransactionDialog(true); setSelectedTransaction(params.row) }}
+                            sx={{
+                                bgcolor: colours.primary[400], // Light gray background color for the table
+                                '& .MuiDataGrid-cell': {
+                                    color: colours.grey[100],   // Darker text color for cells
+                                },
+                                '& .MuiDataGrid-row:hover': {
+                                    backgroundColor: colours.greenAccent[600], // Row highlight on hover
+                                },
+                                '& .MuiDataGrid-columnHeaders': {
+                                    backgroundColor: colours.primary[600], // Header background color
+                                    color: '#ffffff',           // Header text color
+                                },
+                                fontFamily: theme.typography.body1,
+                                borderColor: colours.grey[400]
+                            }}
                         />
                     </Box>
                     <PerTransactionDialog showDialog={showTransactionDialog} transaction={selectedTransaction} onClose={() => { fetchTransactions(); setShowTransactionDialog(false); }} />

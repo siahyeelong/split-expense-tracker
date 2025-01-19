@@ -1,5 +1,5 @@
 /**
- * This is the outdated version of this component. The new component can be found under the name TransactionsTable.jsx which uses DataGrid instead.
+ * [Deprecated] This is the outdated version of this component. The new component can be found under the name TransactionsTable.jsx which uses DataGrid instead.
  */
 
 import { React, useState, useEffect } from 'react'
