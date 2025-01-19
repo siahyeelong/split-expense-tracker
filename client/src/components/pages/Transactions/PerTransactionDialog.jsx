@@ -1,6 +1,8 @@
-import { Dialog, DialogActions, DialogContent, DialogTitle, Box, Typography } from '@mui/material'
+import { Dialog, DialogActions, DialogContent, Box, Typography, Button, Chip } from '@mui/material'
 import React from 'react'
 import { Categories } from '../../settings/Categories';
+import { ExchangeRates } from '../../settings/ExchangeRates';
+import { Person, People } from '../../settings/People';
 
 function TransactionCard(transaction) {
     const trans = transaction.transaction
@@ -13,22 +15,101 @@ function TransactionCard(transaction) {
     return (
         <>
             <Box display={'flex'} justifyContent={'space-between'} alignContent={'center'}>
-                {/* Display category icon in the same line */}
-                {Categories.getCategoryIcon(trans.category)}
-                {/* Display price large */}
-                <Typography fontSize={'large'}>{price}</Typography>
+                <Box display={'flex'} alignItems={'center'}>
+                    <Box p={'10px'}>
+                        {/* Display category icon in the same line */}
+                        {Categories.getCategoryIcon(trans.category)}
+                    </Box>
+                    <Box p={'10px'}>
+                        {/* Display price large */}
+                        <Typography fontSize={'large'}>{price}</Typography>
+                    </Box>
+                </Box>
+                <Box textAlign={'center'} p={'10px'}>
+                    <Typography variant="body2" sx={{ display: 'block' }}>
+                        Paid by:
+                    </Typography>
+                    <Chip
+                        key={trans.payer}
+                        label={Person.findDisplayName(trans.payer, People)}
+                        sx={{
+                            backgroundColor: Person.findFavColour(trans.payer, People) || '#CCCCCC',
+                            color: '#000',
+                            fontWeight: 'bold',
+                        }} />
+                </Box>
             </Box>
 
             {/* Display Category in text */}
-            <Box display={'flex'} justifyContent={'space-between'} alignContent={'center'}>
-                <Typography fontWeight={'bold'}>Category: </Typography>
-                <Typography>{trans.category}</Typography>
+            <Box display={'flex'} alignContent={'center'}>
+                <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
+                    <Typography fontWeight={'bold'}>Category: </Typography>
+                </Box>
+                <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
+                    <Typography>{trans.category}</Typography>
+                </Box>
             </Box>
             {/* Display Description */}
+            <Box display={'flex'} alignContent={'center'}>
+                <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
+                    <Typography fontWeight={'bold'}>Description: </Typography>
+                </Box>
+                <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
+                    <Typography>{trans.description}</Typography>
+                </Box>
+            </Box>
             {/* Display amount in SGD if not in original currency */}
+            <Box display={'flex'} alignContent={'center'} visibility={trans.currency === 'SGD' ? 'hidden' : 'visible'}>
+                <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
+                    <Typography fontWeight={'bold'}>Price (SGD): </Typography>
+                </Box>
+                <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
+                    <Typography>
+                        {parseFloat(trans.SGD).toLocaleString('en-SG', {
+                            style: 'currency', currency: 'SGD',
+                            minimumFractionDigits: 0,  // Show no decimal places if not needed
+                            maximumFractionDigits: 2
+                        })}
+                    </Typography>
+                </Box>
+            </Box>
             {/* Display exchange rate */}
-            {/* Display recipients */}
+            <Box display={'flex'} alignContent={'center'} visibility={trans.currency === 'SGD' ? 'hidden' : 'visible'}>
+                <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
+                    <Typography fontWeight={'bold'}>Exchange rate: </Typography>
+                </Box>
+                <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
+                    <Typography>{ExchangeRates.getRate('IDR')}</Typography>
+                </Box>
+            </Box>
             {/* Display Payer */}
+            <Box display={'flex'} alignContent={'center'}>
+                <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
+                    <Typography fontWeight={'bold'}>Payer: </Typography>
+                </Box>
+                <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
+                    <Typography>{trans.payer}</Typography>
+                </Box>
+            </Box>
+            {/* Display recipients */}
+            <Box display={'flex'} alignContent={'center'}>
+                <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
+                    <Typography fontWeight={'bold'}>Recipients: </Typography>
+                </Box>
+                <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'} flexWrap={'wrap'} gap={1}>
+                    {trans.recipients.map((recipient) => (
+                        <Chip
+                            key={recipient}
+                            label={Person.findDisplayName(recipient, People)}
+                            sx={{
+                                backgroundColor: Person.findFavColour(recipient, People) || '#CCCCCC',
+                                color: '#000',
+                                fontWeight: 'bold',
+                            }}
+                        />
+                    ))}
+                </Box>
+            </Box>
 
             {/* Display timestamp as a grey footer */}
         </>
@@ -36,11 +117,35 @@ function TransactionCard(transaction) {
 }
 
 function PerTransactionDialog({ showDialog, transaction, onClose }) {
+    async function deleteTransaction(transaction) {
+        try {
+            let response = "";
+            const backendURL = process.env.REACT_APP_BACKEND_URL;
+
+            response = await fetch(`${backendURL}/record/${transaction._id}`, { method: "DELETE" });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            console.log('Transaction deleted successfully!');
+
+        } catch (error) {
+            console.error("something went wrong with updating a record: ", error);
+            alert("Something went wrong!");
+        }
+
+    }
+
     return (
-        <Dialog open={showDialog} onClose={onClose} fullWidth={true} maxWidth={'xs'}>
-            <DialogTitle>Transaction number: {transaction.id}</DialogTitle>
+        <Dialog open={showDialog} onClose={onClose} fullWidth={true} maxWidth={'xs'} >
             <DialogContent><TransactionCard transaction={transaction} /></DialogContent>
-            <DialogActions></DialogActions>
+            <DialogActions>
+                <Button variant='outlined' color='error' onClick={() => { deleteTransaction(transaction).then(onClose); }}>
+                    DELETE
+                </Button>
+                <Button variant='contained' color='secondary' onClick={onClose}>
+                    CLOSE
+                </Button>
+            </DialogActions>
         </Dialog>
     );
 }

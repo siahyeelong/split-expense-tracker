@@ -19,7 +19,7 @@ function TransactionsTable() {
     const [selectedTransaction, setSelectedTransaction] = useState([]);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
+    function fetchTransactions() {
         const backendURL = process.env.REACT_APP_BACKEND_URL;
         fetch(`${backendURL}/record/`)
             .then(response => {
@@ -35,7 +35,9 @@ function TransactionsTable() {
                 setError('Failed to fetch transactions. Please try again later.');
                 console.error('Error fetching data:', error);
             });
-    }, []);
+    }
+
+    useEffect(() => fetchTransactions(), []);
 
     const columns = [
         { field: 'id', headerName: 'Index', flex: 3, sortable: true },
@@ -88,7 +90,6 @@ function TransactionsTable() {
             <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
                 <ToCSVButton data={transactions} colours={colours} />
                 <CurrencySwitch onToggle={setShowSGD} />
-                {console.log('show? : ', showSGD)}
             </Stack>
             {error ? (
                 <Typography color="error" variant="body1">{error}</Typography>
@@ -105,7 +106,7 @@ function TransactionsTable() {
                             onRowClick={(params) => { setShowTransactionDialog(true); setSelectedTransaction(params.row) }}
                         />
                     </Box>
-                    <PerTransactionDialog showDialog={showTransactionDialog} transaction={selectedTransaction} onClose={() => setShowTransactionDialog(false)} />
+                    <PerTransactionDialog showDialog={showTransactionDialog} transaction={selectedTransaction} onClose={() => { fetchTransactions(); setShowTransactionDialog(false); }} />
                 </Box>
             )}
         </Box>
