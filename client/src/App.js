@@ -1,4 +1,4 @@
-import Sidebar from "./components/pages/Sidebar";
+import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
@@ -7,6 +7,7 @@ import LogTransaction from "./components/pages/LogTransaction";
 import Dashboard from "./components/pages/Dashboard";
 import Transactions from "./components/pages/Transactions"
 import Settings from "./components/pages/Settings"
+import Bottombar from "./components/Bottombar";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -27,6 +28,7 @@ function App() {
             </Routes>
           </main>
         </div>
+        <Bottombar />
       </ThemeProvider>
     </ColorModeContext.Provider>
   );
