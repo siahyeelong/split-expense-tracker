@@ -1,6 +1,7 @@
 import express from "express";
 import db from "../db/connection.js";
 import { ObjectId } from "mongodb"; // This help convert the id from string to ObjectId for the _id.
+import { settle_debt } from "./algorithm/settle_debt.js";
 
 // router is an instance of the express router.
 // We use it to define our routes.
@@ -18,8 +19,15 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/test", async (req, res) => {
-    res.send('hello from server!').status(200);
+router.get("/owe", async (req, res) => {
+    try {
+        let collection = await db.collection(process.env.COLLECTION);
+        let transactions = await collection.find({}).toArray();
+        let debts = settle_debt(transactions);
+        res.status(200).send(debts);
+    } catch (error) {
+        console.log(`get error:\n${error}`.red);
+    }
 });
 
 // This section will help you get a single record by id
@@ -85,7 +93,7 @@ router.patch("/:id", async (req, res) => {
 
         let collection = await db.collection(process.env.COLLECTION);
         let result = await collection.updateOne(query, updates);
-        res.send(result).status(200);
+        res.status(200).send(result);
     } catch (err) {
         console.error(err.red);
         res.status(500).send("Error updating record");

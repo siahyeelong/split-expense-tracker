@@ -1,5 +1,5 @@
 import { People } from "./People.js"
-import { transactions } from "./test_data.js";
+import { transactions as test_transactions } from "./test_data.js";
 
 /**
  * This function initialises the 2D matrix with respect to all participants in this group
@@ -8,9 +8,9 @@ import { transactions } from "./test_data.js";
  */
 function initialise_2D_matrix() {
     const people = People.getAllPeople()
-    const ret_matrix = []
+    const ret_matrix = {}
     people.forEach(px => {
-        ret_matrix[px.personKey] = []
+        ret_matrix[px.personKey] = {}
         people.forEach(py => {
             ret_matrix[px.personKey][py.personKey] = 0
         })
@@ -173,7 +173,7 @@ function print2DArray(data) {
  * [Debugging] This function is used to verify the functionality of the functions written
  */
 function runTest() {
-    const debt_matrix = generate_raw_matrix(transactions)
+    const debt_matrix = generate_raw_matrix(test_transactions)
     const debt_matrix_reduced = reduce_debts(debt_matrix)
     const debt_matrix_simplified = simplify_debts(People, debt_matrix)
 
@@ -184,5 +184,15 @@ function runTest() {
     console.log("\nsimplified\n")
     print2DArray(debt_matrix_simplified)
 }
+/**
+ * This function is exported and used in record.js to return all debts
+ * @param {Object} transactions The transactions returned from MongoDB
+ * @returns 3 matrices
+ */
+export function settle_debt(transactions) {
+    const debt_matrix = generate_raw_matrix(transactions)
+    const debt_matrix_reduced = reduce_debts(debt_matrix)
+    const debt_matrix_simplified = simplify_debts(People, debt_matrix)
 
-runTest()
+    return [debt_matrix, debt_matrix_reduced, debt_matrix_simplified];
+}
