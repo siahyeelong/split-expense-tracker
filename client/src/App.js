@@ -7,7 +7,6 @@ import LogTransaction from "./components/pages/LogTransaction";
 import Dashboard from "./components/pages/Dashboard";
 import Transactions from "./components/pages/Transactions"
 import Settings from "./components/pages/Settings"
-import Bottombar from "./components/Bottombar";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -28,7 +27,6 @@ function App() {
             </Routes>
           </main>
         </div>
-        <Bottombar />
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

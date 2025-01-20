@@ -152,6 +152,7 @@ function LogTransactionForm() {
                                     color: '#000',
                                     backgroundColor: selected ? Person.findFavColour(person.identifier, People) : '#e0e0e0',
                                     margin: '0.25%',
+                                    '&:hover': { backgroundColor: Person.findFavColour(person.identifier, People) }
                                 }}
                                 clickable
                                 onClick={() => handleChipSelection(person.identifier)}

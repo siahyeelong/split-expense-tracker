@@ -1,3 +1,8 @@
+/**
+ * [Deprecated] This was supposed to replace the sidebar when the viewing screen is vertical like on a mobile phone. 
+ * The feature has been superceded by the DropdownMenu feature
+ */
+
 import { React, useState } from 'react';
 import { Link } from 'react-router-dom'
 import { tokens } from '../theme'
