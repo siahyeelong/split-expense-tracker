@@ -17,9 +17,13 @@ class CategoriesClass {
     // }
     setCategoryIcon(cat, icon, colour) {
         this.category[cat] = { icon: <BackgroundBox colour={colour} icon={icon} /> };
+        this.category[cat].colour = colour
     }
     getCategoryIcon(cat) {
         return this.category[cat] ? this.category[cat].icon : "no icon";
+    }
+    getCategoryColour(cat) {
+        return this.category[cat].colour || "grey";
     }
 }
 

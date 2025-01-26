@@ -2,7 +2,6 @@ import React from 'react'
 import { Box } from '@mui/material';
 import Header from '../../Header';
 import TransactionsTable from './TransactionsTable';
-import CurrencySwitch from './CurrencySwitch';
 
 function Transactions() {
     return (

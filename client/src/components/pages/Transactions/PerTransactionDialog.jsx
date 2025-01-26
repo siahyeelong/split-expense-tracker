@@ -4,10 +4,10 @@ import { Categories } from '../../settings/Categories';
 import { ExchangeRates } from '../../settings/ExchangeRates';
 import { Person, People } from '../../settings/People';
 
-function TransactionCard(transaction) {
-    const trans = transaction.transaction
-    const price = parseFloat(trans.price).toLocaleString('en-SG', {
-        style: 'currency', currency: (trans.currency === 'SGD') ? 'SGD' : (trans.currency || 'SGD'),
+function TransactionCard({ transaction }) {
+
+    const price = parseFloat(transaction.price).toLocaleString('en-SG', {
+        style: 'currency', currency: (transaction.currency === 'SGD') ? 'SGD' : (transaction.currency || 'SGD'),
         minimumFractionDigits: 0,  // Show no decimal places if not needed
         maximumFractionDigits: 2
     })
@@ -18,7 +18,7 @@ function TransactionCard(transaction) {
                 <Box display={'flex'} alignItems={'center'}>
                     <Box p={'10px'}>
                         {/* Display category icon in the same line */}
-                        {Categories.getCategoryIcon(trans.category)}
+                        {Categories.getCategoryIcon(transaction.category)}
                     </Box>
                     <Box p={'10px'}>
                         {/* Display price large */}
@@ -31,10 +31,10 @@ function TransactionCard(transaction) {
                     </Typography>
                     {/* display payer */}
                     <Chip
-                        key={trans.payer}
-                        label={Person.findDisplayName(trans.payer, People)}
+                        key={transaction.payer}
+                        label={Person.findDisplayName(transaction.payer, People)}
                         sx={{
-                            backgroundColor: Person.findFavColour(trans.payer, People) || '#CCCCCC',
+                            backgroundColor: Person.findFavColour(transaction.payer, People) || '#CCCCCC',
                             color: '#000',
                             fontWeight: 'bold',
                         }} />
@@ -47,7 +47,7 @@ function TransactionCard(transaction) {
                     <Typography fontWeight={'bold'}>Category: </Typography>
                 </Box>
                 <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
-                    <Typography>{trans.category}</Typography>
+                    <Typography>{transaction.category}</Typography>
                 </Box>
             </Box >
             {/* Display Description */}
@@ -56,17 +56,17 @@ function TransactionCard(transaction) {
                     <Typography fontWeight={'bold'}>Description: </Typography>
                 </Box>
                 <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
-                    <Typography>{trans.description}</Typography>
+                    <Typography>{transaction.description}</Typography>
                 </Box>
             </Box >
             {/* Display amount in SGD if not in original currency */}
-            < Box display={'flex'} alignContent={'center'} visibility={trans.currency === 'SGD' ? 'hidden' : 'visible'} >
+            < Box display={'flex'} alignContent={'center'} visibility={transaction.currency === 'SGD' ? 'hidden' : 'visible'} >
                 <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
                     <Typography fontWeight={'bold'}>Price (SGD): </Typography>
                 </Box>
                 <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'}>
                     <Typography>
-                        {parseFloat(trans.SGD).toLocaleString('en-SG', {
+                        {parseFloat(transaction.SGD).toLocaleString('en-SG', {
                             style: 'currency', currency: 'SGD',
                             minimumFractionDigits: 0,  // Show no decimal places if not needed
                             maximumFractionDigits: 2
@@ -75,7 +75,7 @@ function TransactionCard(transaction) {
                 </Box>
             </Box >
             {/* Display exchange rate */}
-            < Box display={'flex'} alignContent={'center'} visibility={trans.currency === 'SGD' ? 'hidden' : 'visible'} >
+            < Box display={'flex'} alignContent={'center'} visibility={transaction.currency === 'SGD' ? 'hidden' : 'visible'} >
                 <Box display={'flex'} justifyContent={'flex-end'} alignContent={'center'} p={'10px'} width={'110px'}>
                     <Typography fontWeight={'bold'}>Exchange rate: </Typography>
                 </Box>
@@ -89,7 +89,7 @@ function TransactionCard(transaction) {
                     <Typography fontWeight={'bold'}>Recipients: </Typography>
                 </Box>
                 <Box display={'flex'} justifyContent={'flex-start'} alignContent={'center'} p={'10px'} flexWrap={'wrap'} gap={1}>
-                    {trans.recipients.map((recipient) => (
+                    {transaction.recipients.map((recipient) => (
                         <Chip
                             key={recipient}
                             label={Person.findDisplayName(recipient, People)}

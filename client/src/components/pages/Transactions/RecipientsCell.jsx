@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chip, Box, ButtonBase, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Chip, Box } from '@mui/material';
 import { Person, People } from '../../settings/People';
 
 export default function RecipientsCell({ recipients }) {

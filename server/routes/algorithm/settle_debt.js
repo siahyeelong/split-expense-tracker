@@ -30,7 +30,7 @@ function generate_raw_matrix(transactions) {
     transactions.forEach(transaction => {
         const payer = transaction.payer
         const recipients = transaction.recipients
-        const amount = transaction.price / recipients.length
+        const amount = transaction.SGD / recipients.length
 
         recipients.forEach(recipient => {
             if (recipient !== payer)

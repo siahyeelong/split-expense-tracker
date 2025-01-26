@@ -188,7 +188,7 @@ function LogTransactionForm() {
                         aria-label="Currency"
                         sx={{
                             '& .MuiToggleButton-root': {
-                                backgroundColor: '#e0e0e0',
+                                background: '#fcfcfc',
                                 color: 'black',
                                 '&.Mui-selected': {
                                     backgroundColor: colours.greenAccent[600], // Darker green for selected
