@@ -1,5 +1,4 @@
 import { People } from "./People.js"
-import { transactions as test_transactions } from "./test_data.js";
 
 /**
  * This function initialises the 2D matrix with respect to all participants in this group
@@ -156,34 +155,34 @@ function simplify_debts(peopleData, debt_matrix) {
  * 
  * @param {Object} data 
  */
-function print2DArray(data) {
-    const keys = Object.keys(data); // Get all keys (person1, person2, etc.)
+// function print2DArray(data) {
+//     const keys = Object.keys(data); // Get all keys (person1, person2, etc.)
 
-    // Print header row
-    console.log("     " + keys.map(key => key.padEnd(8)).join(" "));
+//     // Print header row
+//     console.log("     " + keys.map(key => key.padEnd(8)).join(" "));
 
-    // Print each row
-    keys.forEach(rowKey => {
-        const row = data[rowKey];
-        const rowData = keys.map(colKey => String(row[colKey] || 0).padEnd(8)).join(" "); // Use 0 if key doesn't exist
-        console.log(rowKey.padEnd(10) + rowData);
-    });
-}
+//     // Print each row
+//     keys.forEach(rowKey => {
+//         const row = data[rowKey];
+//         const rowData = keys.map(colKey => String(row[colKey] || 0).padEnd(8)).join(" "); // Use 0 if key doesn't exist
+//         console.log(rowKey.padEnd(10) + rowData);
+//     });
+// }
 /**
  * [Debugging] This function is used to verify the functionality of the functions written
  */
-function runTest() {
-    const debt_matrix = generate_raw_matrix(test_transactions)
-    const debt_matrix_reduced = reduce_debts(debt_matrix)
-    const debt_matrix_simplified = simplify_debts(People, debt_matrix)
+// function runTest() {
+//     const debt_matrix = generate_raw_matrix(test_transactions)
+//     const debt_matrix_reduced = reduce_debts(debt_matrix)
+//     const debt_matrix_simplified = simplify_debts(People, debt_matrix)
 
-    console.log("\nOG\n")
-    print2DArray(debt_matrix)
-    console.log("\nreduced\n")
-    print2DArray(debt_matrix_reduced)
-    console.log("\nsimplified\n")
-    print2DArray(debt_matrix_simplified)
-}
+//     console.log("\nOG\n")
+//     print2DArray(debt_matrix)
+//     console.log("\nreduced\n")
+//     print2DArray(debt_matrix_reduced)
+//     console.log("\nsimplified\n")
+//     print2DArray(debt_matrix_simplified)
+// }
 /**
  * This function is exported and used in record.js to return all debts
  * @param {Object} transactions The transactions returned from MongoDB
