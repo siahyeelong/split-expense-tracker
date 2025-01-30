@@ -33,7 +33,7 @@ function generate_raw_matrix(transactions) {
 
         recipients.forEach(recipient => {
             if (recipient !== payer)
-                debt_matrix[recipient][payer] = amount
+                debt_matrix[recipient][payer] += amount
         })
     })
 
